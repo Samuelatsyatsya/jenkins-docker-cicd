@@ -5,6 +5,7 @@ pipeline {
         githubPush()
     }
     
+    
     environment {
         AWS_REGION = credentials('AWS_REGION')
         DB_SECRET_NAME = credentials('DB_SECRET_NAME')
@@ -17,7 +18,7 @@ pipeline {
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
     }
     
-    
+
     stages {
         stage('Checkout') {
             steps {

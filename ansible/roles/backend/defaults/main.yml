@@ -1,0 +1,6 @@
+---
+# Docker Images
+frontend_image: "{{ lookup('env', 'ECR_FRONTEND_REPO') }}:latest"
+frontend_port: 80
+backend_port: 3000
+aws_region: "{{ lookup('env', 'AWS_REGION') }}"

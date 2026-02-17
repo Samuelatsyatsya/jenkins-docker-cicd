@@ -1,0 +1,8 @@
+- name: Configure all servers
+  hosts: all
+  become: true
+  roles:
+    - common
+    - backend
+    - frontend
+    - nginx

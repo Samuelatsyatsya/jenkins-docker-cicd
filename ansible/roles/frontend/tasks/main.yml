@@ -1,0 +1,29 @@
+---
+- name: Create frontend directory
+  file:
+    path: /home/ubuntu/frontend
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Login to AWS ECR
+  shell: |
+    aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ frontend_image.split(':')[0].split('/')[0] }}
+  become: yes
+  no_log: true
+
+- name: Template docker-compose.yml for frontend
+  template:
+    src: docker-compose.yml.j2
+    dest: /home/ubuntu/frontend/docker-compose.yml
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy frontend container
+  community.docker.docker_compose_v2:
+    project_src: /home/ubuntu/frontend
+    state: present
+    recreate: always
+    remove_orphans: true

@@ -1,0 +1,6 @@
+---
+nginx_package: nginx
+nginx_service: nginx
+nginx_port: 80
+backend_port: 3000
+frontend_port: 80

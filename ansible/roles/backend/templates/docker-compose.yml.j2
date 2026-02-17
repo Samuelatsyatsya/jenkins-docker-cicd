@@ -1,0 +1,19 @@
+services:
+  backend:
+    image: "{{ backend_image }}"
+    container_name: backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: "production"
+      DB_SECRET_NAME: "{{ db_secret_name }}"
+      AWS_REGION: "{{ aws_region }}"
+      PORT: "{{ backend_port }}"
+      HOST: "0.0.0.0"
+      API_PREFIX: "/api/v1"
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    external: true

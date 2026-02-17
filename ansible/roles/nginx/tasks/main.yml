@@ -1,0 +1,37 @@
+---
+- name: Create nginx config directory
+  file:
+    path: /etc/nginx
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Copy nginx configuration
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Create Docker network if not exists
+  community.docker.docker_network:
+    name: app-network
+    state: present
+
+- name: Ensure Nginx container is running
+  community.docker.docker_container:
+    name: nginx
+    image: nginx:stable
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "{{ nginx_port }}:80"
+    volumes:
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - name: app-network
+    recreate: true

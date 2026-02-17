@@ -1,0 +1,21 @@
+plugin: aws_ec2
+
+regions:
+  - "{{ lookup('env', 'AWS_REGION') }}" 
+
+filters:
+  tag:Ansible: "true"
+  tag:Tier: "app"
+
+keyed_groups:
+  - key: tags.Environment
+    prefix: env
+  - key: tags.Tier
+    prefix: tier
+
+hostnames:
+  - private-ip-address
+
+compose:
+  ansible_host: private_ip_address
+  ansible_ssh_common_args: '-o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@{{ lookup("env", "BASTION_HOST") }}"'

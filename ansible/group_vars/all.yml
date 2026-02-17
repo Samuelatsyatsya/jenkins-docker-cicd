@@ -1,0 +1,14 @@
+---
+# AWS Configuration
+aws_region: "{{ lookup('env', 'AWS_REGION') }}"
+db_secret_name: "{{ lookup('env', 'DB_SECRET_NAME') }}"
+
+# Docker Images
+backend_image: "{{ lookup('env', 'ECR_BACKEND_REPO') }}:latest"
+frontend_image: "{{ lookup('env', 'ECR_FRONTEND_REPO') }}:latest"
+backend_port: 3000
+frontend_port: 80
+
+# SSH Configuration
+bastion_host: "{{ lookup('env', 'BASTION_HOST') }}"
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -W %h:%p ubuntu@{{ bastion_host }}"'

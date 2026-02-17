@@ -1,0 +1,13 @@
+services:
+  frontend:
+    image: "{{ frontend_image }}"
+    container_name: frontend
+    restart: unless-stopped
+    environment:
+      API_URL: "/api/v1"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true

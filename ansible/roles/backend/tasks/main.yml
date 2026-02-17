@@ -1,0 +1,59 @@
+---
+- name: Debug configuration
+  debug:
+    msg:
+      - "DB Secret Name: {{ db_secret_name }}"
+      - "AWS Region: {{ aws_region }}"
+      - "Backend Image: {{ backend_image }}"
+
+- name: Install unzip (required for AWS CLI)
+  apt:
+    name: unzip
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Check if AWS CLI is installed
+  command: aws --version
+  register: aws_cli_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install AWS CLI v2
+  shell: |
+    cd /tmp
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip -o awscliv2.zip
+    ./aws/install --update
+    rm -rf awscliv2.zip aws
+  become: yes
+  when: aws_cli_check.rc != 0
+
+- name: Login to AWS ECR
+  shell: |
+    aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ backend_image.split(':')[0].split('/')[0] }}
+  become: yes
+  no_log: true
+
+- name: Create app directory
+  file:
+    path: /home/ubuntu/app
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Template docker-compose.yml for backend
+  template:
+    src: docker-compose.yml.j2
+    dest: /home/ubuntu/app/docker-compose.yml
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Deploy backend container
+  community.docker.docker_compose_v2:
+    project_src: /home/ubuntu/app
+    state: present
+    recreate: always
+    remove_orphans: true

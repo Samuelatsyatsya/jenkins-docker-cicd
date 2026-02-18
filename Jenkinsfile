@@ -18,6 +18,7 @@ pipeline {
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
     }
     
+    
     stages {
         stage('Checkout') {
             steps {
@@ -132,7 +133,7 @@ EOF
                         ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no "ubuntu@${BASTION_HOST}" "echo 'Bastion connection successful'"
                     '''
                     
-                    
+
                     // Run Ansible playbook
                     sh '''
                         . venv/bin/activate

@@ -17,6 +17,7 @@ pipeline {
         BASTION_HOST = credentials('BASTION_HOST')
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
     }
+
     
     
     stages {

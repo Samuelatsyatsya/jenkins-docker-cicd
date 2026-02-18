@@ -5,7 +5,6 @@ pipeline {
         githubPush()
     }
     
-
     environment {
         AWS_REGION = credentials('AWS_REGION')
         DB_SECRET_NAME = credentials('DB_SECRET_NAME')
@@ -17,8 +16,6 @@ pipeline {
         BASTION_HOST = credentials('BASTION_HOST')
         SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
     }
-
-    
     
     stages {
         stage('Checkout') {
@@ -30,7 +27,6 @@ pipeline {
         stage('Lint') {
             steps {
                 script {
-                    // Set up Python
                     sh '''
                         python3 -m venv venv
                         . venv/bin/activate
@@ -38,24 +34,20 @@ pipeline {
                         ansible-galaxy collection install community.docker community.aws
                     '''
                     
-                    // Lint Ansible playbooks
                     sh '''
                         . venv/bin/activate
                         export ANSIBLE_ROLES_PATH=ansible/roles
                         ansible-lint ansible/playbooks/
                     '''
                     
-                    // Lint Dockerfiles (Backend)
                     sh '''
                         docker run --rm -i hadolint/hadolint < backend/Dockerfile
                     '''
                     
-                    // Lint Dockerfiles (Frontend)
                     sh '''
                         docker run --rm -i hadolint/hadolint < frontend/Dockerfile
                     '''
                     
-                    // Lint GitHub Actions workflow (optional in Jenkins context)
                     sh '''
                         docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
                     '''
@@ -66,19 +58,16 @@ pipeline {
         stage('Build and Deploy') {
             steps {
                 script {
-                    // Configure AWS credentials
                     sh '''
                         aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
                         aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
                         aws configure set region ${AWS_REGION}
                     '''
                     
-                    // Login to AWS ECR
                     sh '''
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_BACKEND_REPO%/*}
                     '''
                     
-                    // Build & Push Backend Image
                     sh '''
                         IMAGE_TAG=$(echo ${GIT_COMMIT} | cut -c1-8)
                         
@@ -91,7 +80,6 @@ pipeline {
                         docker push "${ECR_BACKEND_REPO}:latest"
                     '''
                     
-                    // Build & Push Frontend Image
                     sh '''
                         IMAGE_TAG=$(echo ${GIT_COMMIT} | cut -c1-8)
                         
@@ -105,21 +93,18 @@ pipeline {
                         docker push "${ECR_FRONTEND_REPO}:latest"
                     '''
                     
-                    // Install Ansible and dependencies
                     sh '''
                         . venv/bin/activate
                         pip install ansible boto3 botocore
                         ansible-galaxy collection install community.aws community.docker
                     '''
                     
-                    // Setup SSH key
                     sh '''
                         mkdir -p ~/.ssh
                         echo "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
                         chmod 600 ~/.ssh/rps-game-keypair.pem
                     '''
                     
-                    // Create SSH wrapper script
                     sh '''
                         cat > ssh_wrapper.sh << 'EOF'
 #!/bin/bash
@@ -128,14 +113,11 @@ EOF
                         chmod +x ssh_wrapper.sh
                     '''
                     
-                    // Test SSH connection
                     sh '''
                         echo "Testing bastion connection..."
                         ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no "ubuntu@${BASTION_HOST}" "echo 'Bastion connection successful'"
                     '''
                     
-
-                    // Run Ansible playbook
                     sh '''
                         . venv/bin/activate
                         cd ansible
@@ -153,9 +135,6 @@ EOF
         }
         failure {
             echo 'Pipeline failed!'
-        }
-        always {
-            cleanWs()
         }
     }
 }

@@ -99,20 +99,19 @@ pipeline {
                         ansible-galaxy collection install community.aws community.docker
                     '''
                     
-                    sh '''
-                        mkdir -p ~/.ssh
-                        cat > ~/.ssh/rps-game-keypair.pem << 'SSHKEY'
-                    ${SSH_PRIVATE_KEY}
-                    SSHKEY
-                        chmod 600 ~/.ssh/rps-game-keypair.pem
-                    '''
+                    script {
+                        sh 'mkdir -p ~/.ssh'
+                        writeFile file: '/var/jenkins_home/.ssh/rps-game-keypair.pem', 
+                                text: env.SSH_PRIVATE_KEY
+                        sh 'chmod 600 ~/.ssh/rps-game-keypair.pem'
+                    }
 
                     
                     sh '''
                         cat > ssh_wrapper.sh << 'EOF'
-#!/bin/bash
-ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@${BASTION_HOST}" "$@"
-EOF
+                    #!/bin/bash
+                    ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@${BASTION_HOST}" "$@"
+                    EOF
                         chmod +x ssh_wrapper.sh
                     '''
                     

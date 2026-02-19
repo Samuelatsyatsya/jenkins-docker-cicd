@@ -101,8 +101,11 @@ pipeline {
 
                     sh '''
                         mkdir -p ~/.ssh
-                        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
+                        printf '%b\n' "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
                         chmod 600 ~/.ssh/rps-game-keypair.pem
+                        
+                        # Verify it worked
+                        echo "Key file lines: $(wc -l < ~/.ssh/rps-game-keypair.pem)"
                         
                         echo "=== DEBUG: Key file info ==="
                         ls -lh ~/.ssh/rps-game-keypair.pem
@@ -115,13 +118,6 @@ pipeline {
                         echo "=== END DEBUG ==="
                     '''
 
-                    
-                    script {
-                        sh 'mkdir -p ~/.ssh'
-                        writeFile file: '/var/jenkins_home/.ssh/rps-game-keypair.pem', 
-                                text: env.SSH_PRIVATE_KEY
-                        sh 'chmod 600 ~/.ssh/rps-game-keypair.pem'
-                    }
 
                     
                     sh '''

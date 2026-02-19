@@ -115,8 +115,33 @@ EOF
                         sh '''
                             . venv/bin/activate
                             cd ansible
+                             # Export all variables explicitly
+                            export AWS_REGION="${AWS_REGION}"
+                            export DB_SECRET_NAME="${DB_SECRET_NAME}"
+                            export ECR_BACKEND_REPO="${ECR_BACKEND_REPO}"
+                            export ECR_FRONTEND_REPO="${ECR_FRONTEND_REPO}"
+                            export BASTION_HOST="${BASTION_HOST}"
                             export ANSIBLE_SSH_EXECUTABLE="${WORKSPACE}/ssh_wrapper.sh"
-                            ansible-playbook playbooks/site.yml -i inventory/aws_ec2.yml
+                            
+                            # Get image tag
+                            IMAGE_TAG=$(echo ${GIT_COMMIT} | cut -c1-8)
+                            
+                            # Debug: Show what Ansible will see
+                            echo "=== Ansible Variables ==="
+                            echo "AWS_REGION: ${AWS_REGION}"
+                            echo "DB_SECRET_NAME: ${DB_SECRET_NAME}"
+                            echo "Backend Image: ${ECR_BACKEND_REPO}:${IMAGE_TAG}"
+                            echo "Frontend Image: ${ECR_FRONTEND_REPO}:${IMAGE_TAG}"
+                            
+                            # Run Ansible with explicit extra vars (most reliable)
+                            ansible-playbook playbooks/site.yml -i inventory/aws_ec2.yml \
+                                -e "aws_region=${AWS_REGION}" \
+                                -e "db_secret_name=${DB_SECRET_NAME}" \
+                                -e "backend_image=${ECR_BACKEND_REPO}:${IMAGE_TAG}" \
+                                -e "frontend_image=${ECR_FRONTEND_REPO}:${IMAGE_TAG}" \
+                                -e "bastion_host=${BASTION_HOST}" \
+                                -e "backend_port=3000" \
+                                -e "frontend_port=80"
                         '''
                     }
                 }

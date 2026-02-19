@@ -14,7 +14,7 @@ pipeline {
         ECR_FRONTEND_REPO = credentials('ECR_FRONTEND_REPO')
         VITE_API_URL = credentials('VITE_API_URL')
         BASTION_HOST = credentials('BASTION_HOST')
-        SSH_PRIVATE_KEY = credentials('SSH_PRIVATE_KEY')
+     
     }
     
     stages {
@@ -99,39 +99,29 @@ pipeline {
                         ansible-galaxy collection install community.aws community.docker
                     '''
 
-                    sh '''
-                        mkdir -p ~/.ssh
-                        printf '%b\n' "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
-                        chmod 600 ~/.ssh/rps-game-keypair.pem
+                    withCredentials([file(credentialsId: 'SSH_KEY_FILE', variable: 'SSH_KEY_PATH')]) {
+                        sh '''
+                            mkdir -p ~/.ssh
+                            cp "$SSH_KEY_PATH" ~/.ssh/rps-game-keypair.pem
+                            chmod 600 ~/.ssh/rps-game-keypair.pem
+                            
+                            echo "Key lines: $(wc -l < ~/.ssh/rps-game-keypair.pem)"
+                        '''
                         
-                        # Verify it worked
-                        echo "Key file lines: $(wc -l < ~/.ssh/rps-game-keypair.pem)"
-                        
-                        echo "=== DEBUG: Key file info ==="
-                        ls -lh ~/.ssh/rps-game-keypair.pem
-                        echo "First line:"
-                        head -1 ~/.ssh/rps-game-keypair.pem
-                        echo "Last line:"
-                        tail -1 ~/.ssh/rps-game-keypair.pem
-                        echo "Line count:"
-                        wc -l ~/.ssh/rps-game-keypair.pem
-                        echo "=== END DEBUG ==="
-                    '''
-
-
-                    
-                    sh '''
-                        cat > ssh_wrapper.sh << 'EOF'
+                        sh '''
+                            cat > ssh_wrapper.sh << 'EOF'
                     #!/bin/bash
                     ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@${BASTION_HOST}" "$@"
                     EOF
-                        chmod +x ssh_wrapper.sh
-                    '''
-                    
-                    sh '''
-                        echo "Testing bastion connection..."
-                        ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no "ubuntu@${BASTION_HOST}" "echo 'Bastion connection successful'"
-                    '''
+                            chmod +x ssh_wrapper.sh
+                        '''
+                        
+                        sh '''
+                            echo "Testing bastion connection..."
+                            ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no "ubuntu@${BASTION_HOST}" "echo 'Bastion connection successful'"
+                        '''
+                    }
+
                     
                     sh '''
                         . venv/bin/activate

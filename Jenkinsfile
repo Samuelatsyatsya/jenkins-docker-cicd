@@ -14,7 +14,6 @@ pipeline {
         ECR_FRONTEND_REPO = credentials('ECR_FRONTEND_REPO')
         VITE_API_URL = credentials('VITE_API_URL')
         BASTION_HOST = credentials('BASTION_HOST')
-     
     }
     
     stages {
@@ -35,21 +34,11 @@ pipeline {
                     '''
                     
                     sh '''
-                        . venv/bin/activate
-                        export ANSIBLE_ROLES_PATH=ansible/roles
-                        # ansible-lint ansible/playbooks/
-                    '''
-                    
-                    sh '''
                         docker run --rm -i hadolint/hadolint < backend/Dockerfile
                     '''
                     
                     sh '''
                         docker run --rm -i hadolint/hadolint < frontend/Dockerfile
-                    '''
-                    
-                    sh '''
-                        # docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
                     '''
                 }
             }
@@ -109,26 +98,27 @@ pipeline {
                         '''
                         
                         sh '''
-                            cat > ssh_wrapper.sh << 'EOF'
-                    #!/bin/bash
-                    ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@${BASTION_HOST}" "$@"
-                    EOF
-                            chmod +x ssh_wrapper.sh
+                            # Create ssh wrapper with absolute path
+                            cat > "${WORKSPACE}/ssh_wrapper.sh" << 'EOF'
+#!/bin/bash
+ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no -o ProxyCommand="ssh -i ~/.ssh/rps-game-keypair.pem -W %h:%p ubuntu@${BASTION_HOST}" "$@"
+EOF
+                            chmod +x "${WORKSPACE}/ssh_wrapper.sh"
+                            ls -la "${WORKSPACE}/ssh_wrapper.sh"
                         '''
                         
                         sh '''
                             echo "Testing bastion connection..."
                             ssh -i ~/.ssh/rps-game-keypair.pem -o StrictHostKeyChecking=no "ubuntu@${BASTION_HOST}" "echo 'Bastion connection successful'"
                         '''
+                        
+                        sh '''
+                            . venv/bin/activate
+                            cd ansible
+                            export ANSIBLE_SSH_EXECUTABLE="${WORKSPACE}/ssh_wrapper.sh"
+                            ansible-playbook playbooks/site.yml -i inventory/aws_ec2.yml
+                        '''
                     }
-
-                    
-                    sh '''
-                        . venv/bin/activate
-                        cd ansible
-                        export ANSIBLE_SSH_EXECUTABLE=../ssh_wrapper.sh
-                        ansible-playbook playbooks/site.yml -i inventory/aws_ec2.yml
-                    '''
                 }
             }
         }

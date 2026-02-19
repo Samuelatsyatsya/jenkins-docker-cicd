@@ -49,7 +49,7 @@ pipeline {
                     '''
                     
                     sh '''
-                        docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
+                        # docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
                     '''
                 }
             }

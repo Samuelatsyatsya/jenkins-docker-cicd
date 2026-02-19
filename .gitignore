@@ -1,0 +1,85 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Vite / React
+.vite/
+.eslintcache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.override.yml
+*.pid
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+*.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible
+*.retry
+inventory.ini
+# ansible/group_vars/*all*
+ansible/group_vars/*vault*
+ansible/*.retry
+
+# Ansible runtime cache
+ansible/.ansible/
+
+# SSH keys
+*.pem
+
+# Secrets
+*.env
+./group_vars/all.yml
+
+# Compiled / temp
+*.pyc
+__pycache__/
+*.retry
+*.log
+
+
+# Dynamic inventories
+inventories/*.yml
+
+
+# Testing / Coverage
+coverage/
+
+# Temporary / Cache
+tmp/
+temp/
+.cache/

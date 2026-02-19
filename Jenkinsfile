@@ -98,6 +98,23 @@ pipeline {
                         pip install ansible boto3 botocore
                         ansible-galaxy collection install community.aws community.docker
                     '''
+
+                    sh '''
+                        mkdir -p ~/.ssh
+                        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
+                        chmod 600 ~/.ssh/rps-game-keypair.pem
+                        
+                        echo "=== DEBUG: Key file info ==="
+                        ls -lh ~/.ssh/rps-game-keypair.pem
+                        echo "First line:"
+                        head -1 ~/.ssh/rps-game-keypair.pem
+                        echo "Last line:"
+                        tail -1 ~/.ssh/rps-game-keypair.pem
+                        echo "Line count:"
+                        wc -l ~/.ssh/rps-game-keypair.pem
+                        echo "=== END DEBUG ==="
+                    '''
+
                     
                     script {
                         sh 'mkdir -p ~/.ssh'

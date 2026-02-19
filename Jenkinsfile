@@ -37,7 +37,7 @@ pipeline {
                     sh '''
                         . venv/bin/activate
                         export ANSIBLE_ROLES_PATH=ansible/roles
-                        // ansible-lint ansible/playbooks/
+                        # ansible-lint ansible/playbooks/
                     '''
                     
                     sh '''

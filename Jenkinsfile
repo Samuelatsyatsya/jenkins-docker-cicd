@@ -101,9 +101,12 @@ pipeline {
                     
                     sh '''
                         mkdir -p ~/.ssh
-                        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/rps-game-keypair.pem
+                        cat > ~/.ssh/rps-game-keypair.pem << 'SSHKEY'
+                    ${SSH_PRIVATE_KEY}
+                    SSHKEY
                         chmod 600 ~/.ssh/rps-game-keypair.pem
                     '''
+
                     
                     sh '''
                         cat > ssh_wrapper.sh << 'EOF'

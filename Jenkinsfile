@@ -24,36 +24,36 @@ pipeline {
             }
         }
         
-        // stage('Lint') {
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 python3 -m venv venv
-        //                 . venv/bin/activate
-        //                 pip install ansible-lint ansible-core
-        //                 ansible-galaxy collection install community.docker community.aws
-        //             '''
+        stage('Lint') {
+            steps {
+                script {
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install ansible-lint ansible-core
+                        ansible-galaxy collection install community.docker community.aws
+                    '''
                     
-        //             sh '''
-        //                 . venv/bin/activate
-        //                 export ANSIBLE_ROLES_PATH=ansible/roles
-        //                 ansible-lint ansible/playbooks/
-        //             '''
+                    sh '''
+                        . venv/bin/activate
+                        export ANSIBLE_ROLES_PATH=ansible/roles
+                        // ansible-lint ansible/playbooks/
+                    '''
                     
-        //             sh '''
-        //                 docker run --rm -i hadolint/hadolint < backend/Dockerfile
-        //             '''
+                    sh '''
+                        docker run --rm -i hadolint/hadolint < backend/Dockerfile
+                    '''
                     
-        //             sh '''
-        //                 docker run --rm -i hadolint/hadolint < frontend/Dockerfile
-        //             '''
+                    sh '''
+                        docker run --rm -i hadolint/hadolint < frontend/Dockerfile
+                    '''
                     
-        //             sh '''
-        //                 docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
-        //             '''
-        //         }
-        //     }
-        // }
+                    sh '''
+                        docker run --rm -v "${PWD}:/repo" -w /repo rhysd/actionlint:latest -color
+                    '''
+                }
+            }
+        }
         
         stage('Build and Deploy') {
             steps {

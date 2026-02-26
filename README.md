@@ -273,6 +273,12 @@ Go to GitHub repository → Settings → Webhooks
 
 - View the leaderboard to see top players.
 
+
+### Screenshots
+
+![alt text](screenshots/cicd_infra.png)
+
+
 ## Future Improvements
 
 - Add user authentication and JWT tokens

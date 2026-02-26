@@ -1,0 +1,62 @@
+# Copy this file to terraform.tfvars and replace placeholder values.
+
+aws_region   = "us-west-2"
+project_name = "my-project"
+environment  = "dev"
+
+vpc_cidr           = "10.10.0.0/16"
+availability_zones = ["us-west-2a", "us-west-2b"]
+
+public_subnet_cidrs   = ["10.10.1.0/24", "10.10.2.0/24"]
+private_subnet_cidrs  = ["10.10.11.0/24", "10.10.12.0/24"]
+database_subnet_cidrs = ["10.10.21.0/24", "10.10.22.0/24"]
+
+app_port              = 8080
+alb_allowed_cidrs     = ["0.0.0.0/0"]
+bastion_allowed_cidrs = ["YOUR.PUBLIC.IP/32"]
+ip_url1               = "https://checkip.amazonaws.com"
+ip_url2               = "https://api.ipify.org"
+ip_url3               = "https://ifconfig.me/ip"
+
+# Bastion configuration
+bastion_instance_type = "t3.micro"
+bastion_ami_id        = "ami-xxxxxxxxxxxxxxxxx"
+
+volume_size = 30
+volume_type = "gp3"
+
+db_instance_class      = "db.t3.micro"
+db_engine_version      = "8.0"
+db_name                = ""
+db_username            = ""
+db_multi_az            = false
+db_create_read_replica = false
+db_read_replica_count  = 0
+
+db_allocated_storage     = 20
+db_max_allocated_storage = 100
+db_storage_encrypted     = true
+
+db_backup_retention_period = 7
+db_backup_window           = "03:00-04:00"
+db_maintenance_window      = "sun:04:00-sun:05:00"
+
+health_check_path = "/health"
+certificate_arn   = null
+enable_https      = false
+
+instance_type         = "t3.micro"
+ami_id                = "ami-xxxxxxxxxxxxxxxxx"
+key_name              = "your-keypair-name"
+asg_min_size          = 1
+asg_max_size          = 2
+asg_desired_capacity  = 1
+cpu_target_value      = 65
+estimated_savings     = "N/A"
+
+# WAF configuration
+enable_waf               = true
+waf_rate_limit           = 2000
+waf_blocked_ips          = []
+waf_enable_sqli          = false
+waf_enable_common_rules  = true

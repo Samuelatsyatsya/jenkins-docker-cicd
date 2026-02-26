@@ -278,6 +278,11 @@ Go to GitHub repository → Settings → Webhooks
 
 ![alt text](screenshots/cicd_infra.png)
 
+![alt text](screenshots/cicd_ecrLogin.png)
+
+![alt text](screenshots/cicd-buildDeploy.png)
+
+![alt text](screenshots/cicd_jenkins_success.png)
 
 ## Future Improvements
 
